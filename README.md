@@ -52,10 +52,17 @@ validación falla.
 Cualquier Debian/Ubuntu interno con salida a internet que llegue por SSH a los servidores nginx.
 Mejor una VM de gestión que un servidor en producción.
 
+El repo es privado y el servidor no tiene credenciales de GitHub. Se copia desde el PC:
+
 ```bash
-cd /root
-git clone https://github.com/mtandazo35/certificado-comodin.git
-cd certificado-comodin
+# en el PC
+scp -r C:/Users/<usuario>/Documents/GitHub/certificado-comodin root@10.0.0.5:/root/
+```
+
+```bash
+# en el servidor de gestión
+cd /root/certificado-comodin
+chmod +x emitir.sh distribuir.sh estado.sh
 cp comodin.conf.ejemplo comodin.conf          # editar: DOMINIO, CORREO
 cp servidores.txt.ejemplo servidores.txt      # editar: una IP por línea
 
