@@ -1,0 +1,4 @@
+# Datos reales: solo en el servidor de gestión, nunca en el repo
+comodin.conf
+servidores.txt
+actual/

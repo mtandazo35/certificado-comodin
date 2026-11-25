@@ -1,0 +1,18 @@
+# Copiar a comodin.conf y editar. Este archivo NO lleva la clave de DirectAdmin:
+# emitir.sh la pide la primera vez y acme.sh la guarda (solo root).
+
+# Subdominio para lo interno. Se emite *.DOMINIO y DOMINIO.
+# Ejemplo: int.ejemplo.com -> *.int.ejemplo.com (web.int.ejemplo.com, app.int.ejemplo.com...)
+DOMINIO="int.ejemplo.com"
+
+# Correo de la cuenta de Let's Encrypt (avisos de caducidad).
+CORREO="admin@ejemplo.com"
+
+# Carpeta donde queda el certificado en cada servidor nginx.
+DESTINO="/etc/nginx/ssl/comodin"
+
+# Segundos que se espera a que el TXT se vea en el DNS público antes de validar.
+ESPERA_DNS=300
+
+# 1 solo si el panel DirectAdmin tiene un certificado no válido.
+DA_API_INSECURE=0

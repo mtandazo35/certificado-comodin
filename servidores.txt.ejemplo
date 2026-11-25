@@ -1,0 +1,5 @@
+# Copiar a servidores.txt. Un servidor nginx por línea: IP o IP:puerto_ssh.
+# Se entra como root con la clave /root/.ssh/comodin. Las líneas con # se ignoran.
+10.0.0.20
+10.0.0.21
+10.0.0.22:2222
