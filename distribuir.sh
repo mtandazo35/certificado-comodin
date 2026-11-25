@@ -10,19 +10,11 @@
 set -uo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG=/var/log/certificado-comodin.log
-CLAVE=/root/.ssh/comodin
-# El host key no se verifica a propósito: las IPs internas se reutilizan entre máquinas.
-SSH_OPC=(-i "$CLAVE" -o BatchMode=yes -o ConnectTimeout=10
-         -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR)
+. "$DIR/comun.sh"
 
 exec > >(tee -a "$LOG") 2>&1
-echo "== $(date '+%F %T') distribuir.sh $*"
+echo "== $(date '+%F %T') distribuir.sh *.$DOMINIO $*"
 
-# shellcheck source=/dev/null
-. "$DIR/comodin.conf" || { echo "ERROR: falta comodin.conf"; exit 1; }
-CRT="$DIR/actual/fullchain.pem"
-KEY="$DIR/actual/key.pem"
 [[ -s "$CRT" && -s "$KEY" ]] || { echo "ERROR: no hay certificado en $DIR/actual (ejecutar emitir.sh)"; exit 1; }
 
 forzar=0
@@ -41,10 +33,11 @@ ok=0; igual=0; fallos=()
 REMOTO='
 set -u
 d="$1"
+s="$2"
 command -v nginx >/dev/null || { echo "nginx no está instalado"; exit 3; }
-mkdir -p /etc/nginx/snippets
-if [ ! -f /etc/nginx/snippets/comodin-ssl.conf ]; then
-  cat > /etc/nginx/snippets/comodin-ssl.conf <<EOF
+mkdir -p "$(dirname "$s")"
+if [ ! -f "$s" ]; then
+  cat > "$s" <<EOF
 # Generado por certificado-comodin. Se incluye en cada server { listen 443 ssl; ... }
 ssl_certificate     $d/fullchain.pem;
 ssl_certificate_key $d/key.pem;
@@ -91,7 +84,7 @@ while read -r linea <&3; do
      ! scp -q "${SSH_OPC[@]}" -P "$puerto" "$CRT" "$KEY" "root@$host:$DESTINO.nuevo/"; then
     echo "ERROR al copiar"; fallos+=("$linea (copia)"); continue
   fi
-  if salida="$(ssh "${SSH_OPC[@]}" -p "$puerto" "root@$host" "bash -s -- '$DESTINO'" <<<"$REMOTO" 2>&1)"; then
+  if salida="$(ssh "${SSH_OPC[@]}" -p "$puerto" "root@$host" "bash -s -- '$DESTINO' '$SNIPPET'" <<<"$REMOTO" 2>&1)"; then
     echo "OK, $salida"; ok=$((ok + 1))
   else
     echo "ERROR"; echo "$salida" | sed 's/^/    /'; fallos+=("$linea (nginx)")

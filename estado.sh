@@ -5,16 +5,11 @@
 set -uo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CLAVE=/root/.ssh/comodin
-SSH_OPC=(-i "$CLAVE" -o BatchMode=yes -o ConnectTimeout=10
-         -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR)
-# shellcheck source=/dev/null
-. "$DIR/comodin.conf"
+. "$DIR/comun.sh"
 
-CRT="$DIR/actual/fullchain.pem"
 if [[ -s "$CRT" ]]; then
   local_sha="$(sha256sum "$CRT" | cut -d' ' -f1)"
-  echo "Gestión: *.$DOMINIO vence $(openssl x509 -enddate -noout -in "$CRT" | cut -d= -f2)"
+  echo "Gestión: *.$DOMINIO ($PROVEEDOR) vence $(openssl x509 -enddate -noout -in "$CRT" | cut -d= -f2)"
 else
   local_sha=""
   echo "Gestión: sin certificado todavía (ejecutar emitir.sh)"
@@ -32,7 +27,7 @@ while read -r linea <&3; do
     if [ -s \"\$f\" ]; then
       echo \"\$(openssl x509 -enddate -noout -in \"\$f\" | cut -d= -f2)|\$(sha256sum \"\$f\" | cut -d' ' -f1)\"
     else echo 'sin certificado|'; fi
-    nginx -T 2>/dev/null | grep -c 'include.*comodin-ssl.conf'
+    nginx -T 2>/dev/null | grep -c 'include.*ssl-$DOMINIO.conf'
     true
   " 2>/dev/null)"
   if [[ $? -eq 255 ]]; then printf '%-22s %s\n' "$linea" "SIN ACCESO por SSH"; continue; fi

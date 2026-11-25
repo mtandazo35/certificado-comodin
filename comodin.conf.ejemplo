@@ -1,5 +1,11 @@
-# Copiar a comodin.conf y editar. Este archivo NO lleva la clave de DirectAdmin:
-# emitir.sh la pide la primera vez y acme.sh la guarda (solo root).
+# Copiar a comodin.conf y editar. Este archivo NO lleva credenciales:
+# emitir.sh las pide la primera vez y acme.sh las guarda en ./acme/ (solo root).
+#
+# Un dominio por carpeta. Para otro dominio (u otra cuenta del mismo proveedor),
+# copiar la carpeta entera y editar su propio comodin.conf (ver README).
+
+# Dónde está el DNS del dominio: directadmin | cpanel | cloudflare
+PROVEEDOR="directadmin"
 
 # Subdominio para lo interno. Se emite *.DOMINIO y DOMINIO.
 # Ejemplo: int.ejemplo.com -> *.int.ejemplo.com (web.int.ejemplo.com, app.int.ejemplo.com...)
@@ -8,11 +14,12 @@ DOMINIO="int.ejemplo.com"
 # Correo de la cuenta de Let's Encrypt (avisos de caducidad).
 CORREO="admin@ejemplo.com"
 
-# Carpeta donde queda el certificado en cada servidor nginx.
-DESTINO="/etc/nginx/ssl/comodin"
+# Carpeta del certificado en cada servidor nginx (por defecto /etc/nginx/ssl/<DOMINIO>).
+# El snippet para los sitios queda en /etc/nginx/snippets/ssl-<DOMINIO>.conf
+DESTINO=""
 
 # Segundos que se espera a que el TXT se vea en el DNS público antes de validar.
 ESPERA_DNS=300
 
-# 1 solo si el panel DirectAdmin tiene un certificado no válido.
+# Solo DirectAdmin: 1 si el panel tiene un certificado no válido.
 DA_API_INSECURE=0
